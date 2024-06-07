@@ -1,9 +1,9 @@
 import {
   setLocationObject,
   getHomeLocation,
-  cleanText,
-  getCoordsFromApi,
   getWeatherFromCoords,
+  getCoordsFromApi,
+  cleanText,
 } from './dataFunctions.js';
 import {
   setPlaceholderText,
@@ -23,7 +23,7 @@ const initApp = () => {
   const homeButton = document.getElementById('home');
   homeButton.addEventListener('click', loadWeather);
   const saveButton = document.getElementById('saveLocation');
-  saveButton.addEventListener('click', savedLocation);
+  saveButton.addEventListener('click', saveLocation);
   const unitButton = document.getElementById('unit');
   unitButton.addEventListener('click', setUnitPref);
   const refreshButton = document.getElementById('refresh');
@@ -39,19 +39,16 @@ const initApp = () => {
 document.addEventListener('DOMContentLoaded', initApp);
 
 const getGeoWeather = (event) => {
-  if (event) {
-    if (event.type === 'click') {
-      const mapIcon = document.querySelector('.fa-map-marker-alt');
-      addSpinner(mapIcon);
-    }
+  if (event && event.type === 'click') {
+    const mapIcon = document.querySelector('.fa-map-marker-alt');
+    addSpinner(mapIcon);
   }
-
   if (!navigator.geolocation) return geoError();
   navigator.geolocation.getCurrentPosition(geoSuccess, geoError);
 };
 
 const geoError = (errObj) => {
-  const errMsg = errObj.message ? errObj.message : 'Geolocation not supported';
+  const errMsg = errObj ? errObj.message : 'Geolocation not supported';
   displayError(errMsg, errMsg);
 };
 
@@ -96,7 +93,7 @@ const displayHomeLocationWeather = (home) => {
   }
 };
 
-const savedLocation = () => {
+const saveLocation = () => {
   if (currentLoc.getLat() && currentLoc.getLon()) {
     const saveIcon = document.querySelector('.fa-save');
     addSpinner(saveIcon);
@@ -108,7 +105,7 @@ const savedLocation = () => {
     };
     localStorage.setItem('defaultWeatherLocation', JSON.stringify(location));
     updateScreenReaderConfirmation(
-      `saved ${currentLoc.getName()} as home location.`
+      `Saved ${currentLoc.getName()} as home location.`
     );
   }
 };
@@ -136,7 +133,6 @@ const submitNewLocation = async (event) => {
   const coordsData = await getCoordsFromApi(entryText, currentLoc.getUnit());
   if (coordsData) {
     if (coordsData.cod === 200) {
-      // work with api data
       const myCoordsObj = {
         lat: coordsData.coord.lat,
         lon: coordsData.coord.lon,
@@ -144,7 +140,6 @@ const submitNewLocation = async (event) => {
           ? `${coordsData.name}, ${coordsData.sys.country}`
           : coordsData.name,
       };
-
       setLocationObject(currentLoc, myCoordsObj);
       updateDataAndDisplay(currentLoc);
     } else {
